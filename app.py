@@ -56,8 +56,13 @@ def weekly_breakdown_module():
 
             st.success(translate('success_data', lang))
 
+            st.sidebar.subheader(translate('settings', lang))
+            weekly_diesel_price = st.sidebar.number_input(translate('diesel_price', lang), value=22.0, step=0.1)
+
             if st.button(translate('calc_button', lang)):
                 results = calculate_weekly(df)
+                # Calculate fuel spent
+                results['fuel_spent'] = results['liters_real_consumption'] * weekly_diesel_price
                 
                 st.subheader(translate('results', lang))
                 display_map = get_column_map(lang, module='weekly')
@@ -67,11 +72,12 @@ def weekly_breakdown_module():
                     display_map['hours_variation']: '{:.2%}',
                     display_map['liters_variation']: '{:.2%}',
                     display_map['liters_real_per_hour']: '{:.2f} L/h',
-                    display_map['liters_forecasted']: '{:.1f} L'
+                    display_map['liters_forecasted']: '{:.1f} L',
+                    display_map['fuel_spent']: '${:,.2f}'
                 }))
 
                 st.subheader(translate('dashboard', lang))
-                kpi1, kpi2, kpi3 = st.columns(3)
+                kpi1, kpi2, kpi3, kpi4 = st.columns(4)
                 with kpi1:
                     avg_hours_var = results['hours_variation'].mean()
                     st.metric(translate('kpi_avg_hours_var', lang), f"{avg_hours_var:.2%}")
@@ -81,6 +87,9 @@ def weekly_breakdown_module():
                 with kpi3:
                     total_liters = results['liters_real_consumption'].sum()
                     st.metric(translate('kpi_total_liters', lang), f"{total_liters:,.1f} L")
+                with kpi4:
+                    total_spent = results['fuel_spent'].sum()
+                    st.metric(translate('kpi_total_spent', lang), f"${total_spent:,.2f}")
 
                 col_chart1, col_chart2 = st.columns(2)
                 with col_chart1:
@@ -99,6 +108,15 @@ def weekly_breakdown_module():
                                         labels={'project_name': translate('col_project_name', lang), 
                                                 'liters_real_consumption': translate('col_liters_real_consumption', lang)})
                     st.plotly_chart(fig_project, use_container_width=True)
+
+                # NEW CHART: Spent by Project
+                spent_by_project = results.groupby('project_name')['fuel_spent'].sum().reset_index()
+                fig_spent = px.bar(spent_by_project, x='project_name', y='fuel_spent', 
+                                  title=translate('chart_project_spent', lang),
+                                  labels={'project_name': translate('col_project_name', lang), 
+                                          'fuel_spent': translate('col_fuel_spent', lang)},
+                                  text_auto='.2s')
+                st.plotly_chart(fig_spent, use_container_width=True)
 
                 # Performance Chart
                 fig_perf = px.scatter(results, x='worked_hours_registered', y='liters_real_per_hour', 

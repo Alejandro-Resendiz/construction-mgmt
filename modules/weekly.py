@@ -11,25 +11,26 @@ REQUIRED_INPUT_KEYS = [
 def load_and_map_data(file_obj, lang='en'):
     """
     Loads CSV, validates headers (en or es), and maps to internal keys.
+    Normalization: Lowercase and strip whitespace for matching.
     """
     df = pd.read_csv(file_obj)
     
     en_map = get_column_map('en', module='weekly')
     es_map = get_column_map('es', module='weekly')
     
-    # Create case-insensitive reverse maps
-    rev_en = {v.lower(): k for k, v in en_map.items()}
-    rev_es = {v.lower(): k for k, v in es_map.items()}
+    # Create normalized reverse maps
+    rev_en = {v.lower().strip(): k for k, v in en_map.items()}
+    rev_es = {v.lower().strip(): k for k, v in es_map.items()}
     
     actual_cols = df.columns.tolist()
     
     final_mapping = {}
     for col in actual_cols:
-        col_lower = str(col).lower().strip()
-        if col_lower in rev_en:
-            final_mapping[col] = rev_en[col_lower]
-        elif col_lower in rev_es:
-            final_mapping[col] = rev_es[col_lower]
+        col_norm = str(col).lower().strip()
+        if col_norm in rev_en:
+            final_mapping[col] = rev_en[col_norm]
+        elif col_norm in rev_es:
+            final_mapping[col] = rev_es[col_norm]
             
     df = df.rename(columns=final_mapping)
     
