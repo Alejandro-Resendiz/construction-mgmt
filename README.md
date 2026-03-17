@@ -66,3 +66,26 @@ The application expects a CSV file with the following Spanish headers (mapping t
 - **Depreciation Cost/hr:** `(purchase_value - rescue_value) / lifespan_years / 2112`
 - **Total Cost/hr:** Sum of all hourly costs.
 - **Rent Rate/hr:** `total_cost * (1 + utility_percent)`
+
+---
+
+## 🚜 Weekly Breakdown Module
+
+### Input Requirements
+The application expects a CSV file with the following Spanish headers (mapping to English keys automatically):
+- `MÁQUINA` (machine)
+- `MODELO` (machine_model)
+- `NÚMERO DE SERIE` (machine_serial_number)
+- `PROYECTO` (project_name)
+- `OPERADOR` (operator_name)
+- `ACTIVIDAD` (activity_name)
+- `HORAS TRABAJADAS ESTIMADAS EN PLAN` (worked_hours_forecasted)
+- `HORAS TRABAJADAS REALES REGISTRADAS` (worked_hours_registered)
+- `USO PROMEDIO DE COMBUSTIBLE` (fuel_average_usage)
+- `LITROS CONSUMIDOS REALES` (liters_real_consumption)
+
+### Formulas Used
+- **LITROS ESTIMADOS EN PLAN (liters_forecasted)**: `fuel_average_usage * worked_hours_forecasted`
+- **VARIACIÓN EN HORAS (hours_variation):** `worked_hours_registered / worked_hours_forecasted`
+- **VARIACIÓN EN LITROS (liters_variation):** `liters_real_consumption / liters_forecasted`
+- **LITROS POR HORA [REALES] (liters_real_per_hour)**: `liters_real_consumption / worked_hours_registered`

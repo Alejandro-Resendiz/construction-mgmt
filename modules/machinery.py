@@ -4,7 +4,7 @@ from utils.i18n import get_column_map, translate
 
 REQUIRED_INPUT_KEYS = [
     'id', 'machinery', 'lifespan_years', 'purchase_value', 'rescue_value_percent',
-    'depreciation_estimated_per_hour', 'diesel_consumption_in_liters', 'diesel_price',
+    'diesel_consumption_in_liters', 'diesel_price',
     'operator_wage', 'maintenance_cost', 'worked_hours', 'utility_percent'
 ]
 
@@ -15,33 +15,22 @@ def load_and_map_data(file_obj, lang='en'):
     df = pd.read_csv(file_obj)
     
     # Get maps for both languages to check headers
-    en_map = get_column_map('en')
-    es_map = get_column_map('es')
+    en_map = get_column_map('en', module='machinery')
+    es_map = get_column_map('es', module='machinery')
     
-    # Create reverse maps: Display Name -> Internal Key
-    rev_en = {v: k for k, v in en_map.items()}
-    rev_es = {v: k for k, v in es_map.items()}
+    # Create case-insensitive reverse maps
+    rev_en = {v.lower(): k for k, v in en_map.items()}
+    rev_es = {v.lower(): k for k, v in es_map.items()}
     
-    # Identify which mapping to use based on overlap
     actual_cols = df.columns.tolist()
     
-    mapping_to_use = {}
-    if any(col in rev_es for col in actual_cols):
-        mapping_to_use = rev_es
-    else:
-        mapping_to_use = rev_en
-        
-    # Check for missing required columns
-    missing = [en_map[k] if mapping_to_use == rev_en else es_map[k] 
-               for k in REQUIRED_INPUT_KEYS if mapping_to_use.get(en_map[k] if mapping_to_use == rev_en else es_map[k]) is None and k not in [rev_en.get(c) for c in actual_cols] and k not in [rev_es.get(c) for c in actual_cols]]
-    
-    # Actually, let's just try to map whatever we find
     final_mapping = {}
     for col in actual_cols:
-        if col in rev_en:
-            final_mapping[col] = rev_en[col]
-        elif col in rev_es:
-            final_mapping[col] = rev_es[col]
+        col_lower = str(col).lower().strip()
+        if col_lower in rev_en:
+            final_mapping[col] = rev_en[col_lower]
+        elif col_lower in rev_es:
+            final_mapping[col] = rev_es[col_lower]
             
     df = df.rename(columns=final_mapping)
     

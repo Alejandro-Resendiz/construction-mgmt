@@ -31,10 +31,15 @@ The application is built as a **Modular Streamlit Dashboard**, prioritizing scal
 - **Configurable Parameters:** Allows real-time adjustment of operational constants like "Working Hours per Year."
 - **Data Mapping:** Automatically translates Spanish spreadsheet headers into a standardized internal data format.
 
+### 📅 Weekly Breakdown Module (Consolidado Semanal)
+- **Efficiency Tracking:** Compares planned vs. registered hours and fuel consumption.
+- **Variation Analysis:** Automatically calculates variation percentages for hours and fuel usage.
+- **Operational Metrics:** Computes real liters per hour (L/h) for actual fleet performance monitoring.
+
 ### 📊 Interactive Dashboard
-- **Fleet Summary KPIs:** Instant visibility into total fleet investment, average rent rates, and active machine count.
-- **Cost Breakdown Analysis:** Stacked bar charts visualize the weight of different cost components for every machine in the fleet.
-- **Economic Trendlines:** Scatter plots with OLS trendlines (via `statsmodels`) to analyze the relationship between internal costs and market rent rates.
+- **Fleet Summary KPIs:** Instant visibility into total fleet investment, average rent rates, hour/fuel variation, and total consumption.
+- **Visual Analytics:** Stacked bar charts for cost breakdowns and activity distribution; pie charts for project-based consumption.
+- **Performance Mapping:** Scatter plots to identify machine performance outliers and operational efficiency.
 
 ### 📥 Export & Integration
 - **Localized Exports:** Generates clean CSV results with headers matching the user's active language.
