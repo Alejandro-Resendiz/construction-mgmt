@@ -48,9 +48,9 @@ def validate_data(df, lang='en'):
         # We don't clean, but we check if they are parsable when not 'N/A'
         valid_dates = df[col].astype(str).str.upper().replace('N/A', np.nan)
         try:
-            pd.to_datetime(valid_dates, errors='raise', format='%m/%d/%Y')
+            pd.to_datetime(valid_dates, errors='raise', format='%d/%m/%Y')
         except Exception:
-            errors.append(translate('error_processing', lang, error=f"Invalid date format in {translate(f'col_{col}', lang)}. Expected MM/DD/YYYY"))
+            errors.append(translate('error_processing', lang, error=f"Invalid date format in {translate(f'col_{col}', lang)}. Expected DD/MM/YYYY"))
             
     return errors
 
@@ -86,8 +86,8 @@ def calculate_hr(df):
 
     # 3. time_to_hire
     # Convert to datetime for calculation
-    app_date = pd.to_datetime(df['application_date'], errors='coerce', format='%m/%d/%Y')
-    start_date = pd.to_datetime(df['start_date'], errors='coerce', format='%m/%d/%Y')
+    app_date = pd.to_datetime(df['application_date'], errors='coerce', format='%d/%m/%Y')
+    start_date = pd.to_datetime(df['start_date'], errors='coerce', format='%d/%m/%Y')
     
     df['time_to_hire'] = (start_date - app_date).dt.days
     

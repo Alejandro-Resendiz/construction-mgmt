@@ -71,7 +71,7 @@ def _generate_value(module, key, index):
         # Date generation
         base_date = datetime(2024, 1, 1)
         app_date = base_date + timedelta(days=random.randint(0, 60))
-        if key == 'application_date': return app_date.strftime('%m/%d/%Y')
+        if key == 'application_date': return app_date.strftime('%d/%m/%Y')
         
         # Success probabilities
         passed_screening = random.random() < 0.8
@@ -87,9 +87,9 @@ def _generate_value(module, key, index):
         if key == 'offer': return "Aceptada" if accepted_offer else ("Rechazada" if passed_refs else "Pendiente")
         
         if key == 'offer_date': 
-            return (app_date + timedelta(days=15)).strftime('%m/%d/%Y') if passed_refs else "N/A"
+            return (app_date + timedelta(days=15)).strftime('%d/%m/%Y') if passed_refs else "N/A"
         if key == 'start_date':
-            return (app_date + timedelta(days=30)).strftime('%m/%d/%Y') if accepted_offer else "N/A"
+            return (app_date + timedelta(days=30)).strftime('%d/%m/%Y') if accepted_offer else "N/A"
         if key == 'comments': return "N/A"
         
     return 0

@@ -100,14 +100,14 @@ The application expects a CSV file with the following Spanish headers (mapping t
 - `Vacante` (position)
 - `Nivel` (seniority) -> Senior | Semi Senior | Junior | Concretera
 - `Fuente` (source)
-- `Fecha_aplicacion` (application_date) MM/DD/YYYY
+- `Fecha_aplicacion` (application_date) DD/MM/YYYY
 - `Screening` (screening) -> Aprobado | No aprobado
 - `Filtro_HR` (hr_filter) ->  Aprobado | No aprobado
 - `Entrevista_Tecnica` (technical_interview) ->  Aprobado | No aprobado
 - `Referencias` (references) ->  Aprobado | Pendiente | Negativas
 - `Oferta` (offer) ->  Pendiente | Aceptada | Rechazada
-- `Fecha_oferta` (offer_date) -> N/A | MM/DD/YYYY
-- `Fecha_ingreso` (start_date) -> N/A | MM/DD/YYYY
+- `Fecha_oferta` (offer_date) -> N/A | DD/MM/YYYY
+- `Fecha_ingreso` (start_date) -> N/A | DD/MM/YYYY
 - `Comentarios` (comments)
 
 ### Formulas Used
