@@ -1,9 +1,11 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
+import plotly.graph_objects as go
 from utils.config import APP_NAME
 from modules.machinery import load_and_map_data, calculate_costs, validate_data, DEFAULT_WORKING_HOURS
 from modules.weekly import load_and_map_data as load_weekly, calculate_weekly, validate_data as validate_weekly
+from modules.hr import load_and_map_data as load_hr, calculate_hr, validate_data as validate_hr
 from utils.i18n import translate, get_column_map
 
 st.set_page_config(page_title=f"{APP_NAME} Management System", layout="wide")
@@ -22,6 +24,7 @@ def main():
     module_options = {
         translate('machinery_cost', st.session_state.lang): "Machinery Cost",
         translate('weekly_breakdown', st.session_state.lang): "Weekly Breakdown",
+        translate('hr_pipeline', st.session_state.lang): "HR Pipeline",
         translate('future_module', st.session_state.lang): "Future Module"
     }
     
@@ -32,8 +35,146 @@ def main():
         machinery_cost_module()
     elif module == "Weekly Breakdown":
         weekly_breakdown_module()
+    elif module == "HR Pipeline":
+        hr_pipeline_module()
     else:
         st.info(translate('future_module', st.session_state.lang))
+
+def hr_pipeline_module():
+    lang = st.session_state.lang
+    st.title(translate('hr_title', lang))
+    st.markdown(translate('hr_desc', lang))
+
+    uploaded_file = st.file_uploader(translate('choose_file', lang), type="csv")
+
+    if uploaded_file is not None:
+        try:
+            df = load_hr(uploaded_file, lang)
+            
+            st.subheader(translate('validation', lang))
+            errors = validate_hr(df, lang)
+            
+            if errors:
+                for err in errors:
+                    st.error(err)
+                return
+
+            st.success(translate('success_data', lang))
+
+            if st.button(translate('calc_button', lang)):
+                results = calculate_hr(df)
+                
+                st.subheader(translate('results', lang))
+                display_map = get_column_map(lang, module='hr')
+                display_results = results.rename(columns=display_map)
+                st.dataframe(display_results)
+
+                # --- DASHBOARD ---
+                st.subheader(translate('dashboard', lang))
+                
+                # KPIs
+                total_candidates = len(results)
+                hired_count = len(results[results['final_status'] == 'Contratado'])
+                conversion_rate = hired_count / total_candidates if total_candidates > 0 else 0
+                avg_time_to_hire = results['time_to_hire'].mean()
+
+                k1, k2, k3, k4 = st.columns(4)
+                k1.metric(translate('kpi_candidates', lang), total_candidates)
+                k2.metric(translate('kpi_hired', lang), hired_count)
+                k3.metric(translate('kpi_conversion', lang), f"{conversion_rate:.1%}")
+                k4.metric(translate('kpi_avg_time_to_hire', lang), f"{avg_time_to_hire:.1f}" if not pd.isna(avg_time_to_hire) else "N/A")
+
+                col1, col2 = st.columns(2)
+
+                with col1:
+                    # Funnel Chart
+                    # Define stage order
+                    stage_order = ['Screening', 'Filtro_HR', 'Entrevista', 'Referencias', 'Oferta', 'Ingreso']
+                    counts = []
+                    for stage in stage_order:
+                        # Logic: everyone in a further stage passed the previous ones
+                        if stage == 'Screening':
+                            count = total_candidates
+                        elif stage == 'Filtro_HR':
+                            count = len(results[results['screening'] == 'Aprobado'])
+                        elif stage == 'Entrevista':
+                            count = len(results[results['hr_filter'] == 'Aprobado'])
+                        elif stage == 'Referencias':
+                            count = len(results[results['technical_interview'] == 'Aprobado'])
+                        elif stage == 'Oferta':
+                            count = len(results[results['references'] == 'Aprobado'])
+                        elif stage == 'Ingreso':
+                            count = hired_count
+                        counts.append(count)
+
+                    translated_stages = [translate(f'stage_{stage.lower()}', lang) for stage in stage_order]
+                    # Since we used f'stage_{s.lower()}' and some keys are Filtro_HR, we need fix in i18n or here
+                    # Let's fix i18n keys or use manual mapping for funnel
+                    funnel_labels = [
+                        translate('stage_screening', lang),
+                        translate('stage_hr_filter', lang),
+                        translate('stage_interview', lang),
+                        translate('stage_references', lang),
+                        translate('stage_offer', lang),
+                        translate('stage_hired', lang)
+                    ]
+
+                    fig_funnel = go.Figure(go.Funnel(
+                        y=funnel_labels,
+                        x=counts,
+                        textinfo="value+percent initial"
+                    ))
+                    fig_funnel.update_layout(title=translate('chart_hr_funnel', lang))
+                    st.plotly_chart(fig_funnel, use_container_width=True)
+
+                with col2:
+                    # Status Distribution
+                    status_counts = results['final_status'].value_counts().reset_index()
+                    status_counts.columns = ['Status', 'Count']
+                    # Translate status names
+                    status_map = {
+                        'Contratado': translate('stage_hired', lang),
+                        'Rechazado': 'Rechazado', # Add to i18n if needed
+                        'Proceso activo': 'Proceso activo'
+                    }
+                    status_counts['Status'] = status_counts['Status'].map(status_map)
+                    fig_status = px.pie(status_counts, values='Count', names='Status', hole=0.4,
+                                       title=translate('chart_hr_status', lang))
+                    st.plotly_chart(fig_status, use_container_width=True)
+
+                col3, col4 = st.columns(2)
+                
+                with col3:
+                    # Source Effectiveness
+                    source_stats = results.groupby('source').size().reset_index(name='Total')
+                    hired_by_source = results[results['final_status'] == 'Contratado'].groupby('source').size().reset_index(name='Hired')
+                    source_df = pd.merge(source_stats, hired_by_source, on='source', how='left').fillna(0)
+                    
+                    fig_source = px.bar(source_df, x='source', y=['Total', 'Hired'], barmode='group',
+                                       title=translate('chart_hr_source', lang),
+                                       labels={'source': translate('col_source', lang), 'value': 'Candidates'})
+                    st.plotly_chart(fig_source, use_container_width=True)
+
+                with col4:
+                    # Position distribution
+                    pos_counts = results['position'].value_counts().reset_index()
+                    pos_counts.columns = ['Position', 'Count']
+                    fig_pos = px.bar(pos_counts, x='Count', y='Position', orientation='h',
+                                    title=translate('chart_hr_position', lang),
+                                    labels={'Position': translate('col_position', lang)})
+                    st.plotly_chart(fig_pos, use_container_width=True)
+
+                st.subheader(translate('export', lang))
+                csv = display_results.to_csv(index=False).encode('utf-8')
+                st.download_button(
+                    label=translate('download_button', lang),
+                    data=csv,
+                    file_name="hr_pipeline_results.csv",
+                    mime="text/csv",
+                )
+
+        except Exception as e:
+            st.error(translate('error_processing', lang, error=str(e)))
 
 def weekly_breakdown_module():
     lang = st.session_state.lang
@@ -77,7 +218,7 @@ def weekly_breakdown_module():
                 }))
 
                 st.subheader(translate('dashboard', lang))
-                kpi1, kpi2, kpi3, kpi4 = st.columns(4)
+                kpi1, kpi2, kpi3, k4 = st.columns(4)
                 with kpi1:
                     avg_hours_var = results['hours_variation'].mean()
                     st.metric(translate('kpi_avg_hours_var', lang), f"{avg_hours_var:.2%}")
@@ -87,7 +228,7 @@ def weekly_breakdown_module():
                 with kpi3:
                     total_liters = results['liters_real_consumption'].sum()
                     st.metric(translate('kpi_total_liters', lang), f"{total_liters:,.1f} L")
-                with kpi4:
+                with k4:
                     total_spent = results['fuel_spent'].sum()
                     st.metric(translate('kpi_total_spent', lang), f"${total_spent:,.2f}")
 
@@ -169,7 +310,6 @@ def machinery_cost_module():
                 
                 st.subheader(translate('results', lang))
                 
-                # Get translated column map for display
                 display_map = get_column_map(lang)
                 display_results = results.rename(columns=display_map)
                 
@@ -197,7 +337,6 @@ def machinery_cost_module():
 
                 col_chart1, col_chart2 = st.columns(2)
                 with col_chart1:
-                    # Cost Breakdown Chart
                     cost_components = {
                         'fuel_cost_per_hour': translate('fuel', lang),
                         'operator_cost_per_hour': translate('operator', lang),
@@ -214,7 +353,6 @@ def machinery_cost_module():
                     st.plotly_chart(fig_costs, use_container_width=True)
 
                 with col_chart2:
-                    # Rent vs Total Cost
                     fig_rent = px.scatter(results, x='total_cost_per_hour', y='rent_rate_per_hour', 
                                          hover_name='machinery', title=translate('chart_rent_vs_cost', lang),
                                          labels={'total_cost_per_hour': translate('col_total_cost_per_hour', lang), 

@@ -1,4 +1,5 @@
 from utils.config import APP_NAME
+from tests.data_contracts import MACHINERY_SCHEMA, WEEKLY_SCHEMA, HR_SCHEMA
 
 translations = {
     'en': {
@@ -6,22 +7,25 @@ translations = {
         'select_module': "Select Module",
         'machinery_cost': "Machinery Cost",
         'weekly_breakdown': "Weekly Breakdown",
+        'hr_pipeline': "HR Pipeline",
         'future_module': "Future Module...",
         'upload_title': "🚜 Machinery Cost Calculation",
         'weekly_title': "📅 Weekly Consolidated Report",
+        'hr_title': "👥 Recruitment Pipeline",
         'upload_desc': "Upload the machinery cost CSV file. Requirements: Pure numeric values (e.g., 0.2 for 20%), no currency symbols.",
         'weekly_desc': "Upload the weekly registered hours and fuel CSV file. All numeric values must be pure (no symbols).",
+        'hr_desc': "Upload the recruitment pipeline CSV file. Date format: MM/DD/YYYY.",
         'choose_file': "Choose a CSV file",
         'validation': "1. Data Validation & Cleaning",
         'missing_cols_error': "Missing required columns: {cols}",
         'non_numeric_error': "Column '{col}' contains non-numeric values at rows: {rows}",
-        'success_data': "All data is valid and numeric.",
+        'success_data': "All data is valid.",
         'settings': "Settings",
         'working_hours': "Working Hours per Year",
         'diesel_price': "Diesel Price ($/L)",
         'calc_button': "Calculate Results",
         'results': "2. Calculated Results",
-        'dashboard': "3. Consolidated Dashboard",
+        'dashboard': "3. Analytics Dashboard",
         'kpi_investment': "Total Fleet Investment",
         'kpi_rent': "Avg. Rent Rate / Hour",
         'kpi_count': "Active Machinery Count",
@@ -29,27 +33,39 @@ translations = {
         'kpi_avg_fuel_var': "Avg. Fuel Variation",
         'kpi_total_liters': "Total Registered Liters",
         'kpi_total_spent': "Total Fuel Expenditure",
+        # HR KPIs
+        'kpi_candidates': "Total Candidates",
+        'kpi_hired': "Hired Count",
+        'kpi_conversion': "Conversion Rate",
+        'kpi_avg_time_to_hire': "Avg. Time to Hire (Days)",
+        # HR Stages
+        'stage_screening': "Screening",
+        'stage_hr_filter': "HR Filter",
+        'stage_interview': "Interview",
+        'stage_references': "References",
+        'stage_offer': "Offer",
+        'stage_hired': "Hired",
+        # Charts
         'chart_breakdown': "Cost Breakdown per Machine",
         'chart_rent_vs_cost': "Rent Rate vs. Total Cost",
         'chart_activity_hours': "Registered Hours by Activity",
         'chart_project_fuel': "Fuel Consumption by Project (Liters)",
         'chart_project_spent': "Fuel Expenditure by Project ($)",
         'chart_fuel_performance': "Liters per Hour vs. Registered Hours",
+        'chart_hr_funnel': "Recruitment Funnel",
+        'chart_hr_source': "Source Effectiveness",
+        'chart_hr_position': "Candidates by Position",
+        'chart_hr_status': "Final Status Distribution",
         'export': "4. Export Results",
         'download_button': "Download Results as CSV",
         'error_processing': "Error processing file: {error}",
-        # Internal keys to display names
-        'col_id': "ID",
-        'col_machinery': "Machinery",
-        'col_lifespan_years': "Lifespan (Years)",
-        'col_purchase_value': "Purchase Value",
-        'col_rescue_value_percent': "Rescue Value (%)",
-        'col_diesel_consumption_in_liters': "Diesel Consumption (L)",
-        'col_diesel_price': "Diesel Price",
-        'col_operator_wage': "Operator Wage",
-        'col_maintenance_cost': "Maintenance Cost",
-        'col_worked_hours': "Worked Hours",
-        'col_utility_percent': "Utility (%)",
+        # Components
+        'fuel': "Fuel",
+        'operator': "Operator",
+        'maintenance': "Maintenance",
+        'depreciation': "Depreciation",
+        'cost_component': "Cost Component",
+        # Calculated
         'col_rescue_value': "Rescue Value",
         'col_fuel_cost_per_hour': "Fuel Cost ($/h)",
         'col_operator_cost_per_hour': "Operator Cost ($/h)",
@@ -57,50 +73,39 @@ translations = {
         'col_depreciation_cost_per_hour': "Depreciation Cost ($/h)",
         'col_total_cost_per_hour': "Total Cost ($/h)",
         'col_rent_rate_per_hour': "Rent Rate ($/h)",
-        # Weekly columns
-        'col_machine': "Machine",
-        'col_machine_model': "Model",
-        'col_machine_serial_number': "Number of Serie",
-        'col_project_name': "Project",
-        'col_operator_name': "Operator",
-        'col_activity_name': "Activity",
-        'col_worked_hours_forecasted': "Planned Hours",
-        'col_worked_hours_registered': "Registered Hours",
-        'col_fuel_average_usage': "Avg. Fuel Usage (L/h)",
-        'col_liters_real_consumption': "Real Liters Consumed",
         'col_liters_forecasted': "Planned Liters",
         'col_hours_variation': "Hours Variation",
         'col_liters_variation': "Fuel Variation",
         'col_liters_real_per_hour': "Real Liters / h",
         'col_fuel_spent': "Fuel Expenditure",
-        # Components
-        'fuel': "Fuel",
-        'operator': "Operator",
-        'maintenance': "Maintenance",
-        'depreciation': "Depreciation",
-        'cost_component': "Cost Component"
+        'col_current_stage': "Current Stage",
+        'col_final_status': "Final Status",
+        'col_time_to_hire': "Time to Hire (Days)",
     },
     'es': {
         'title': f"Sistema de Gestión {APP_NAME}",
         'select_module': "Seleccionar Módulo",
         'machinery_cost': "Costo de Maquinaria",
         'weekly_breakdown': "Consolidado Semanal",
+        'hr_pipeline': "Pipeline de Reclutamiento",
         'future_module': "Próximo Módulo...",
         'upload_title': "🚜 Cálculo de Costos de Maquinaria",
         'weekly_title': "📅 Consolidado Semanal de Reportes",
+        'hr_title': "👥 Pipeline de Reclutamiento",
         'upload_desc': "Cargue el archivo CSV. Requisitos: Valores numéricos puros (ej. 0.2 para 20%), sin símbolos de moneda.",
         'weekly_desc': "Cargue el archivo CSV de horas registradas y combustible semanal. Los valores numéricos deben ser puros.",
+        'hr_desc': "Cargue el archivo CSV del pipeline. Formato de fecha: MM/DD/YYYY.",
         'choose_file': "Seleccione un archivo CSV",
         'validation': "1. Validación y Limpieza de Datos",
         'missing_cols_error': "Faltan columnas requeridas: {cols}",
         'non_numeric_error': "La columna '{col}' contiene valores no numéricos en las filas: {rows}",
-        'success_data': "Todos los datos son válidos y numéricos.",
+        'success_data': "Todos los datos son válidos.",
         'settings': "Configuración",
         'working_hours': "Horas de Trabajo por Año",
         'diesel_price': "Precio de Diésel ($/L)",
         'calc_button': "Calcular Resultados",
         'results': "2. Resultados Calculados",
-        'dashboard': "3. Panel de Control Consolidado",
+        'dashboard': "3. Panel de Control Analítico",
         'kpi_investment': "Inversión Total de la Flota",
         'kpi_rent': "Tarifa de Renta Promedio / Hora",
         'kpi_count': "Cantidad de Maquinaria Activa",
@@ -108,27 +113,39 @@ translations = {
         'kpi_avg_fuel_var': "Variación Promedio de Combustible",
         'kpi_total_liters': "Total Litros Registrados",
         'kpi_total_spent': "Gasto Total en Combustible",
+        # HR KPIs
+        'kpi_candidates': "Total Candidatos",
+        'kpi_hired': "Contratados",
+        'kpi_conversion': "Tasa de Conversión",
+        'kpi_avg_time_to_hire': "Tiempo de Contratación Prom. (Días)",
+        # HR Stages
+        'stage_screening': "Screening",
+        'stage_hr_filter': "Filtro HR",
+        'stage_interview': "Entrevista",
+        'stage_references': "Referencias",
+        'stage_offer': "Oferta",
+        'stage_hired': "Ingreso",
+        # Charts
         'chart_breakdown': "Desglose de Costos por Máquina",
         'chart_rent_vs_cost': "Tarifa de Renta vs. Costo Total",
         'chart_activity_hours': "Horas Registradas por Actividad",
         'chart_project_fuel': "Consumo de Combustible por Proyecto (Litros)",
         'chart_project_spent': "Gasto de Combustible por Proyecto ($)",
         'chart_fuel_performance': "Litros por Hora vs. Horas Registradas",
+        'chart_hr_funnel': "Embudo de Reclutamiento",
+        'chart_hr_source': "Efectividad por Fuente",
+        'chart_hr_position': "Candidatos por Vacante",
+        'chart_hr_status': "Distribución de Estatus Final",
         'export': "4. Exportar Resultados",
         'download_button': "Descargar Resultados como CSV",
         'error_processing': "Error al procesar el archivo: {error}",
-        # Machinery columns
-        'col_id': "Código",
-        'col_machinery': "Maquinaria",
-        'col_lifespan_years': "Vida Útil (Años)",
-        'col_purchase_value': "Valor de Compra",
-        'col_rescue_value_percent': "Valor de Rescate (%)",
-        'col_diesel_consumption_in_liters': "Consumo de Diésel (L)",
-        'col_diesel_price': "Precio de Diésel",
-        'col_operator_wage': "Sueldo por Operador",
-        'col_maintenance_cost': "Costo de Mantenimiento",
-        'col_worked_hours': "Horas Trabajadas",
-        'col_utility_percent': "Utilidad (%)",
+        # Components
+        'fuel': "Combustible",
+        'operator': "Operador",
+        'maintenance': "Mantenimiento",
+        'depreciation': "Depreciación",
+        'cost_component': "Componente de Costo",
+        # Calculated
         'col_rescue_value': "Valor de Rescate",
         'col_fuel_cost_per_hour': "Costo Combustible ($/h)",
         'col_operator_cost_per_hour': "Costo Operador ($/h)",
@@ -136,28 +153,14 @@ translations = {
         'col_depreciation_cost_per_hour': "Costo Depreciación ($/h)",
         'col_total_cost_per_hour': "Costo Total por Hora",
         'col_rent_rate_per_hour': "Tarifa Renta por Hora",
-        # Weekly columns
-        'col_machine': "Máquina",
-        'col_machine_model': "Modelo",
-        'col_machine_serial_number': "Número de Serie",
-        'col_project_name': "Proyecto",
-        'col_operator_name': "Operador",
-        'col_activity_name': "Actividad",
-        'col_worked_hours_forecasted': "Horas Trabajadas Estimadas en Plan",
-        'col_worked_hours_registered': "Horas Trabajadas Reales Registradas",
-        'col_fuel_average_usage': "Uso Promedio de Combustible",
-        'col_liters_real_consumption': "Litros Consumidos Reales",
         'col_liters_forecasted': "Litros Estimados Plan",
         'col_hours_variation': "Variación de Horas",
         'col_liters_variation': "Variación de Combustible",
         'col_liters_real_per_hour': "Litros por Hora [Real]",
         'col_fuel_spent': "Monto Gastado en Combustible",
-        # Components
-        'fuel': "Combustible",
-        'operator': "Operador",
-        'maintenance': "Mantenimiento",
-        'depreciation': "Depreciación",
-        'cost_component': "Componente de Costo"
+        'col_current_stage': "Etapa Actual",
+        'col_final_status': "Estatus Final",
+        'col_time_to_hire': "Tiempo para Contratar (Días)",
     }
 }
 
@@ -170,20 +173,20 @@ def translate(key, lang='en', **kwargs):
 def get_column_map(lang='en', module='machinery'):
     """Returns a map of internal keys to translated display names based on module."""
     if module == 'machinery':
-        keys = [
-            'id', 'machinery', 'lifespan_years', 'purchase_value', 'rescue_value_percent',
-            'diesel_consumption_in_liters', 'diesel_price',
-            'operator_wage', 'maintenance_cost', 'worked_hours', 'utility_percent',
-            'rescue_value', 'fuel_cost_per_hour', 'operator_cost_per_hour', 
-            'maintenance_cost_per_hour', 'depreciation_cost_per_hour', 
-            'total_cost_per_hour', 'rent_rate_per_hour'
-        ]
-    else: # weekly
-        keys = [
-            'machine', 'machine_model', 'machine_serial_number', 'project_name',
-            'operator_name', 'activity_name', 'worked_hours_forecasted',
-            'worked_hours_registered', 'fuel_average_usage', 'liters_real_consumption',
-            'liters_forecasted', 'hours_variation', 'liters_variation', 'liters_real_per_hour',
-            'fuel_spent'
-        ]
-    return {k: translate(f'col_{k}', lang) for k in keys}
+        schema = MACHINERY_SCHEMA
+        calculated_keys = ['rescue_value', 'fuel_cost_per_hour', 'operator_cost_per_hour', 
+                           'maintenance_cost_per_hour', 'depreciation_cost_per_hour', 
+                           'total_cost_per_hour', 'rent_rate_per_hour']
+    elif module == 'weekly':
+        schema = WEEKLY_SCHEMA
+        calculated_keys = ['liters_forecasted', 'hours_variation', 'liters_variation', 
+                           'liters_real_per_hour', 'fuel_spent']
+    else: # hr
+        schema = HR_SCHEMA
+        calculated_keys = ['current_stage', 'final_status', 'time_to_hire']
+    
+    col_map = {k: details[lang] for k, details in schema.items()}
+    for k in calculated_keys:
+        col_map[k] = translate(f'col_{k}', lang)
+        
+    return col_map

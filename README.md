@@ -89,3 +89,48 @@ The application expects a CSV file with the following Spanish headers (mapping t
 - **VARIACIÓN EN HORAS (hours_variation):** `worked_hours_registered / worked_hours_forecasted`
 - **VARIACIÓN EN LITROS (liters_variation):** `liters_real_consumption / liters_forecasted`
 - **LITROS POR HORA [REALES] (liters_real_per_hour)**: `liters_real_consumption / worked_hours_registered`
+
+---
+
+## 🚜 HR Pipeline Module
+
+### Input Requirements
+The application expects a CSV file with the following Spanish headers (mapping to English keys automatically):
+- `ID/Nombre` (person_full_name)
+- `Vacante` (position)
+- `Nivel` (seniority) -> Senior | Semi Senior | Junior | Concretera
+- `Fuente` (source)
+- `Fecha_aplicacion` (application_date) MM/DD/YYYY
+- `Screening` (screening) -> Aprobado | No aprobado
+- `Filtro_HR` (hr_filter) ->  Aprobado | No aprobado
+- `Entrevista_Tecnica` (technical_interview) ->  Aprobado | No aprobado
+- `Referencias` (references) ->  Aprobado | Pendiente | Negativas
+- `Oferta` (offer) ->  Pendiente | Aceptada | Rechazada
+- `Fecha_oferta` (offer_date) -> N/A | MM/DD/YYYY
+- `Fecha_ingreso` (start_date) -> N/A | MM/DD/YYYY
+- `Comentarios` (comments)
+
+### Formulas Used
+- **Etapa_actual (current_stage)**: 
+    - Ingreso: `offer == 'Aceptada'`
+    - Oferta: `references == 'Aprobado'`
+    - Referencias: `technical_interview == 'Aprobado'`
+    - Entrevista: `hr_filter == 'Aprobado'`
+    - Filtro_HR: `screening == 'Aprobado'`
+    - Screening: `default`
+- **Estatus_final (final_status)**: 
+    - Rechazado: `screening == 'No aprobado | hr_filter == 'No aprobado | technical_interview == 'No aprobado | references == 'Negativas | offer == 'Rechazada`
+    - Contratado: `offer == 'Aceptada'`
+    - Proceso activo: `default`
+- **Time_to_Hire (time_to_hire)**: `difference_in_days(start_date, application_date)` 
+
+### KPIs
+- **Total candidatos (candidate_count)**: `count(ID/Nombre)`
+- **Screening (screening_count):** `count(current_stage == 'Screening')`
+- **Filtro HR (hr_filter_count):** `count(current_stage == 'Filtro_HR')`
+- **Entrevista (interview_count):** `count(current_stage == 'Entrevista')`
+- **Referencias (reference_count):** `count(current_stage == 'Referencias')`
+- **Oferta (offer_count):** `count(current_stage == 'Oferta')`
+- **Contratados (hired_count):** `count(current_stage == 'Ingreso')`
+- **Time to Hire promedio (time_to_hire_avg):** `avg(time_to_hire)`
+- **Conversion Rate (conversion_rate):** `hired_count / candidate_count`

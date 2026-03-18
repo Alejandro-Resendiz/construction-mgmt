@@ -36,6 +36,12 @@ The application is built as a **Modular Streamlit Dashboard**, prioritizing scal
 - **Variation Analysis:** Automatically calculates variation percentages for hours and fuel usage.
 - **Operational Metrics:** Computes real liters per hour (L/h) for actual fleet performance monitoring.
 
+### 👥 HR Pipeline Module (Pipeline de Reclutamiento)
+- **Funnel Analytics:** Visualizes the recruitment process from screening to hire using interactive funnel charts.
+- **Recruitment KPIs:** Tracks total candidates, hired count, conversion rates, and average time-to-hire.
+- **Source & Position Insights:** Analyzes recruitment effectiveness by source and demand by vacancy position.
+- **Hierarchical Stage Logic:** Automatically determines candidate progress based on approval steps.
+
 ### 📊 Interactive Dashboard
 - **Fleet Summary KPIs:** Instant visibility into total fleet investment, average rent rates, hour/fuel variation, and total consumption.
 - **Visual Analytics:** Stacked bar charts for cost breakdowns and activity distribution; pie charts for project-based consumption.
